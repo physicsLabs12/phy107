@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Experiment 10 — Transformer Gain Virtual Lab (Tables Version)</title>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@300;400;500&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet"/>
+  <style>
+    :root{--bg:#07090f;--panel:#0d1120;--border:#1e2a42;--accent:#00e5ff;--accent2:#ff6b35;--green:#39ff89;--text:#cdd8f0;--muted:#6b7fa3;--heading:#ffffff;--card:#111826;}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--text);font-family:'Lora',serif;min-height:100vh;overflow-x:hidden;}
+    body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:0;opacity:.4;}
+    header{position:relative;padding:60px 40px 40px;text-align:center;border-bottom:1px solid var(--border);overflow:hidden;}
+    header::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:200px;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);}
+    .grid-bg{position:absolute;inset:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:40px 40px;opacity:.25;pointer-events:none;}
+    .lab-tag{font-family:'IBM Plex Mono',monospace;font-size:.72rem;letter-spacing:.25em;text-transform:uppercase;color:var(--accent);margin-bottom:14px;}
+    h1{font-family:'Syne',sans-serif;font-size:clamp(2rem,5vw,3.4rem);font-weight:800;color:var(--heading);line-height:1.1;margin-bottom:10px;}
+    h1 span{color:var(--accent);}
+    .sub{font-family:'IBM Plex Mono',monospace;font-size:.85rem;color:var(--muted);margin-top:10px;}
+    .badge{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;padding:3px 10px;border-radius:20px;border:1px solid var(--accent);color:var(--accent);margin:3px;}
+    .badge.orange{border-color:var(--accent2);color:var(--accent2);}
+    nav{display:flex;justify-content:center;gap:4px;padding:18px 40px;background:var(--panel);border-bottom:1px solid var(--border);flex-wrap:wrap;position:sticky;top:0;z-index:100;}
+    nav button{font-family:'IBM Plex Mono',monospace;font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;padding:9px 20px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;border-radius:4px;transition:all .25s;}
+    nav button:hover,nav button.active{background:var(--accent);color:#000;border-color:var(--accent);font-weight:500;}
+    section{display:none;padding:50px clamp(20px,5vw,80px);max-width:1200px;margin:0 auto;}
+    section.active{display:block;}
+    h2{font-family:'Syne',sans-serif;font-size:1.7rem;font-weight:700;color:var(--heading);margin-bottom:8px;}
+    h3{font-family:'Syne',sans-serif;font-size:1.15rem;font-weight:600;color:var(--accent);margin-bottom:12px;margin-top:28px;}
+    p{line-height:1.8;margin-bottom:14px;color:var(--text);}
+    ul{line-height:2.1;padding-left:22px;}
+    .divider{height:1px;background:linear-gradient(90deg,var(--accent),transparent);margin:32px 0;}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:28px;margin-bottom:24px;position:relative;}
+    .card::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--accent);border-radius:8px 0 0 8px;}
+    .card.orange::before{background:var(--accent2);} 
+    .eq{background:#0a1020;border:1px solid var(--border);border-radius:6px;padding:18px 24px;margin:16px 0;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:1.05rem;color:var(--accent);letter-spacing:.03em;}
+    .sim-wrapper{display:grid;grid-template-columns:1fr 380px;gap:28px;align-items:start;}
+    @media(max-width:900px){.sim-wrapper{grid-template-columns:1fr;}}
+    canvas{width:100%;border:1px solid var(--border);border-radius:8px;background:#070e1c;display:block;}
+    .sim-panel{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:24px;}
+    .ctrl-label{font-family:'IBM Plex Mono',monospace;font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;display:block;}
+    input[type=number], select{width:100%;padding:10px 12px;border-radius:6px;border:1px solid var(--border);background:#070e1c;color:var(--text);font-family:'IBM Plex Mono',monospace;}
+    input[type=range]{width:100%;accent-color:var(--accent);} 
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+    .btn{font-family:'Syne',sans-serif;font-size:.9rem;font-weight:600;padding:12px 24px;border:none;border-radius:6px;cursor:pointer;transition:all .2s;margin-top:10px;width:100%;display:block;}
+    .btn-p{background:var(--accent);color:#000;} 
+    .btn-p:hover{background:#fff;} 
+    .btn-s{background:transparent;color:var(--accent2);border:1px solid var(--accent2);} 
+    .btn-s:hover{background:var(--accent2);color:#fff;} 
+    .pill{display:inline-block;padding:6px 10px;border-radius:999px;font-family:'IBM Plex Mono',monospace;font-size:.72rem;border:1px solid var(--border);color:var(--muted);} 
+    .val{font-family:'IBM Plex Mono',monospace;font-size:1.25rem;color:var(--accent);font-weight:500;}
+    .tbl-wrap{overflow-x:auto;margin:20px 0;}
+    table{width:100%;border-collapse:collapse;font-family:'IBM Plex Mono',monospace;font-size:.82rem;}
+    th{background:#0a1428;color:var(--accent);padding:12px 16px;text-align:center;border:1px solid var(--border);font-weight:500;letter-spacing:.05em;white-space:nowrap;}
+    td{padding:10px 16px;border:1px solid var(--border);text-align:center;color:var(--text);background:var(--card);} 
+    td.editable{background:#0a1020;color:var(--green);} 
+    tr:hover td{background:#111d30;}
+    .caption{font-family:'IBM Plex Mono',monospace;font-size:.78rem;color:var(--muted);margin-top:6px;}
+    .note{font-family:'IBM Plex Mono',monospace;font-size:.75rem;color:var(--muted);line-height:1.6;}
+    .small{font-size:.78rem;color:var(--muted);} 
+  </style>
+</head>
+<body>
+<header>
+  <div class="grid-bg"></div>
+  <div style="position:relative;z-index:1;">
+    <div class="lab-tag">Abdullah Al-Salem University · Physics Lab II · PHY 107</div>
+    <h1>Experiment <span>10</span><br/>Transformer Gain</h1>
+    <p class="sub">Virtual Lab · Edited to match your lab manual tables</p>
+    <div style="margin-top:20px;">
+      <span class="badge">V₂/V₁ = N₂/N₁</span>
+      <span class="badge orange">Gain G</span>
+      <span class="badge">AC</span>
+    </div>
+  </div>
+</header>
+
+<nav id="mainNav">
+  <button class="active" onclick="showTab('theory',this)">① Theory</button>
+  <button onclick="showTab('simulation',this)">② Simulation</button>
+  <button onclick="showTab('data',this)">③ Data Tables</button>
+  <button onclick="showTab('questions',this)">④ Questions</button>
+</nav>
+
+<section id="theory" class="active">
+  <h2>Background Theory</h2>
+  <p>For an ideal transformer, the voltage ratio is approximately equal to the turns ratio.</p>
+  <div class="eq">V₂ / V₁ = N₂ / N₁</div>
+  <div class="eq">Gain G = V₂ / V₁</div>
+
+  <div class="divider"></div>
+  <div class="card">
+    <h3>How this version matches your manual</h3>
+    <p class="small">Your manual uses four data tables. This simulation supports all four:</p>
+    <ul>
+      <li><b>Table 1</b>: Coil resistance vs turns (200 / 400 / 800 turns).</li>
+      <li><b>Table 2</b>: Effect of core shape on output voltage and gain (No core, Iron bar, U‑Shape, Square‑Shape).</li>
+      <li><b>Table 3</b>: Step‑up cases (200→400 and 400→800).</li>
+      <li><b>Table 4</b>: Step‑down cases (400→200 and 800→400).</li>
+    </ul>
+    <p class="note">You can still edit any cell manually inside the tables if you want to enter measured lab readings instead of the simulator output.</p>
+  </div>
+</section>
+
+<section id="simulation">
+  <h2>Interactive Simulation</h2>
+  <p>Select the required part (Table 1–4). The panel will show the correct inputs and will record directly into the matching table format.</p>
+
+  <div class="sim-wrapper">
+    <canvas id="tCanvas" width="720" height="460"></canvas>
+
+    <div class="sim-panel">
+      <span class="ctrl-label">Part / Table</span>
+      <select id="mode" onchange="modeChanged()">
+        <option value="t1">Table 1 — Coil Resistance</option>
+        <option value="t2">Table 2 — Core Effect</option>
+        <option value="t3">Table 3 — Step-up</option>
+        <option value="t4">Table 4 — Step-down</option>
+      </select>
+
+      <div id="panel-common" style="margin-top:12px;">
+        <span class="ctrl-label">Input Voltage V₁ (AC RMS, V)</span>
+        <input type="number" id="Vin" value="6" step="0.5" min="0" oninput="tCalc()"/>
+      </div>
+
+      <div id="panel-t1" style="display:none; margin-top:12px;">
+        <span class="ctrl-label">Turns (choose coil)</span>
+        <select id="coilTurns" onchange="tCalc()">
+          <option value="200">200 turns</option>
+          <option value="400">400 turns</option>
+          <option value="800">800 turns</option>
+        </select>
+        <span class="ctrl-label" style="margin-top:12px;">Measured Resistance (Ω)</span>
+        <input type="number" id="Rcoil" value="0.00" step="0.01" min="0"/>
+      </div>
+
+      <div id="panel-t2" style="display:none; margin-top:12px;">
+        <span class="ctrl-label">Core</span>
+        <select id="coreType" onchange="tCalc()">
+          <option value="none">No core</option>
+          <option value="iron">Iron bar</option>
+          <option value="u">U-Shape</option>
+          <option value="square">Square-Shape</option>
+        </select>
+        <span class="ctrl-label" style="margin-top:12px;">Coupling / Core efficiency (0–1)</span>
+        <input type="range" id="k" min="0" max="1" step="0.001" value="0.95" oninput="kVal.textContent=parseFloat(this.value).toFixed(3); tCalc();"/>
+        <div class="caption">k = <span id="kVal">0.950</span></div>
+        <p class="note">For Table 2 the simulator uses a <b>1:1 turns ratio</b> so <b>G ≈ k</b>.</p>
+      </div>
+
+      <div id="panel-t3" style="display:none; margin-top:12px;">
+        <span class="ctrl-label">Step-up case (Primary → Secondary)</span>
+        <select id="stepUpCase" onchange="tCalc()">
+          <option value="200-400">200 → 400</option>
+          <option value="400-800">400 → 800</option>
+        </select>
+        <span class="ctrl-label" style="margin-top:12px;">Efficiency factor (0–1)</span>
+        <input type="range" id="etaUp" min="0" max="1" step="0.001" value="0.95" oninput="etaUpVal.textContent=parseFloat(this.value).toFixed(3); tCalc();"/>
+        <div class="caption">η = <span id="etaUpVal">0.950</span></div>
+      </div>
+
+      <div id="panel-t4" style="display:none; margin-top:12px;">
+        <span class="ctrl-label">Step-down case (Primary → Secondary)</span>
+        <select id="stepDownCase" onchange="tCalc()">
+          <option value="400-200">400 → 200</option>
+          <option value="800-400">800 → 400</option>
+        </select>
+        <span class="ctrl-label" style="margin-top:12px;">Efficiency factor (0–1)</span>
+        <input type="range" id="etaDown" min="0" max="1" step="0.001" value="0.95" oninput="etaDownVal.textContent=parseFloat(this.value).toFixed(3); tCalc();"/>
+        <div class="caption">η = <span id="etaDownVal">0.950</span></div>
+      </div>
+
+      <button class="btn btn-p" onclick="tRecord()">✔ Record to Table</button>
+      <button class="btn btn-s" onclick="tClearAll()">↺ Clear All Tables</button>
+
+      <div class="divider" style="margin:18px 0;"></div>
+      <div><span class="pill">V₂ (V)</span> <span class="val" id="Vout">—</span></div>
+      <div style="margin-top:10px;"><span class="pill">Gain G</span> <span class="val" id="G">—</span></div>
+      <div style="margin-top:10px;"><span class="pill">N₁</span> <span class="val" id="N1show">—</span></div>
+      <div style="margin-top:10px;"><span class="pill">N₂</span> <span class="val" id="N2show">—</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="data">
+  <h2>Data Tables (match manual)</h2>
+
+  <h3>Table 1</h3>
+  <p class="small">Coil resistance for different number of turns.</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>T200 turns (Ω)</th>
+          <th>T400 turns (Ω)</th>
+          <th>T800 turns (Ω)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td id="t1_200" class="editable" contenteditable="true">—</td>
+          <td id="t1_400" class="editable" contenteditable="true">—</td>
+          <td id="t1_800" class="editable" contenteditable="true">—</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Table 2</h3>
+  <p class="small">Effect of core type on output voltage and gain (1:1 turns ratio used here).</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Core</th>
+          <th>V₁ (V)</th>
+          <th>V₂ (V)</th>
+          <th>G</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>No</td><td id="t2_no_v1" class="editable" contenteditable="true">—</td><td id="t2_no_v2" class="editable" contenteditable="true">—</td><td id="t2_no_g" class="editable" contenteditable="true">—</td></tr>
+        <tr><td>Iron bar</td><td id="t2_iron_v1" class="editable" contenteditable="true">—</td><td id="t2_iron_v2" class="editable" contenteditable="true">—</td><td id="t2_iron_g" class="editable" contenteditable="true">—</td></tr>
+        <tr><td>U-Shape</td><td id="t2_u_v1" class="editable" contenteditable="true">—</td><td id="t2_u_v2" class="editable" contenteditable="true">—</td><td id="t2_u_g" class="editable" contenteditable="true">—</td></tr>
+        <tr><td>Square-Shape</td><td id="t2_sq_v1" class="editable" contenteditable="true">—</td><td id="t2_sq_v2" class="editable" contenteditable="true">—</td><td id="t2_sq_g" class="editable" contenteditable="true">—</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Table 3 (step-up)</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Primary</th>
+          <th>Secondary</th>
+          <th>V₁ (V)</th>
+          <th>V₂ (V)</th>
+          <th>G</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-case="200-400"><td>200</td><td>400</td><td id="t3_200400_v1" class="editable" contenteditable="true">—</td><td id="t3_200400_v2" class="editable" contenteditable="true">—</td><td id="t3_200400_g" class="editable" contenteditable="true">—</td></tr>
+        <tr data-case="400-800"><td>400</td><td>800</td><td id="t3_400800_v1" class="editable" contenteditable="true">—</td><td id="t3_400800_v2" class="editable" contenteditable="true">—</td><td id="t3_400800_g" class="editable" contenteditable="true">—</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Table 4 (step-down)</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Primary</th>
+          <th>Secondary</th>
+          <th>V₁ (V)</th>
+          <th>V₂ (V)</th>
+          <th>G</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-case="400-200"><td>400</td><td>200</td><td id="t4_400200_v1" class="editable" contenteditable="true">—</td><td id="t4_400200_v2" class="editable" contenteditable="true">—</td><td id="t4_400200_g" class="editable" contenteditable="true">—</td></tr>
+        <tr data-case="800-400"><td>800</td><td>400</td><td id="t4_800400_v1" class="editable" contenteditable="true">—</td><td id="t4_800400_v2" class="editable" contenteditable="true">—</td><td id="t4_800400_g" class="editable" contenteditable="true">—</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card orange">
+    <h3>Tip</h3>
+    <p class="note">If you prefer to type your real measured values, just click any green cell and edit. The simulator is only there to help you generate consistent numbers quickly.</p>
+  </div>
+</section>
+
+<section id="questions">
+  <h2>Questions</h2>
+  <div class="card">
+    <ul>
+      <li>If N₂ &gt; N₁, is it step‑up or step‑down?</li>
+      <li>What happens if N₂ = N₁?</li>
+      <li>Why does a real transformer deviate from the ideal turns ratio?</li>
+      <li>How does the core shape affect magnetic coupling and the output voltage?</li>
+    </ul>
+  </div>
+</section>
+
+<script>
+  function showTab(id, btn){
+    document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));
+    document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    if(btn) btn.classList.add('active');
+  }
+</script>
+
+<script>
+  const Vin = document.getElementById('Vin');
+  const mode = document.getElementById('mode');
+  const coilTurns = document.getElementById('coilTurns');
+  const Rcoil = document.getElementById('Rcoil');
+  const coreType = document.getElementById('coreType');
+  const k = document.getElementById('k');
+  const kVal = document.getElementById('kVal');
+  const stepUpCase = document.getElementById('stepUpCase');
+  const stepDownCase = document.getElementById('stepDownCase');
+  const etaUp = document.getElementById('etaUp');
+  const etaDown = document.getElementById('etaDown');
+  const etaUpVal = document.getElementById('etaUpVal');
+  const etaDownVal = document.getElementById('etaDownVal');
+
+  const Vout = document.getElementById('Vout');
+  const G = document.getElementById('G');
+  const N1show = document.getElementById('N1show');
+  const N2show = document.getElementById('N2show');
+
+  function modeChanged(){
+    // show/hide panels
+    document.getElementById('panel-t1').style.display = (mode.value==='t1')?'block':'none';
+    document.getElementById('panel-t2').style.display = (mode.value==='t2')?'block':'none';
+    document.getElementById('panel-t3').style.display = (mode.value==='t3')?'block':'none';
+    document.getElementById('panel-t4').style.display = (mode.value==='t4')?'block':'none';
+
+    // common Vin is needed for all except resistance-only (but keep visible anyway)
+    document.getElementById('panel-common').style.display = (mode.value==='t1')?'none':'block';
+
+    // default k based on core selection to help match typical manual values
+    if(mode.value==='t2'){
+      const map={none:0.035, iron:0.41, u:0.416, square:0.95};
+      const v = map[coreType.value] ?? 0.95;
+      k.value = v; kVal.textContent = (+v).toFixed(3);
+    }
+    tCalc();
+  }
+
+  function getTurns(){
+    let n1=200, n2=400, eff=1;
+    if(mode.value==='t2'){
+      // core test uses 1:1
+      n1=400; n2=400; eff=+k.value;
+    }else if(mode.value==='t3'){
+      const parts=stepUpCase.value.split('-');
+      n1=+parts[0]; n2=+parts[1];
+      eff=+etaUp.value;
+    }else if(mode.value==='t4'){
+      const parts=stepDownCase.value.split('-');
+      n1=+parts[0]; n2=+parts[1];
+      eff=+etaDown.value;
+    }
+    return {n1,n2,eff};
+  }
+
+  function tCalc(){
+    if(mode.value==='t1'){
+      Vout.textContent='—'; G.textContent='—'; N1show.textContent='—'; N2show.textContent='—';
+      drawT();
+      return;
+    }
+    const V1=+Vin.value;
+    const {n1,n2,eff}=getTurns();
+    if(!(V1>=0 && n1>0 && n2>0)) return;
+    const ideal = V1*(n2/n1);
+    const V2 = ideal*eff;
+    const gain = (V1>0)? (V2/V1) : 0;
+    Vout.textContent = isFinite(V2)? V2.toFixed(3) : '—';
+    G.textContent = isFinite(gain)? gain.toFixed(4) : '—';
+    N1show.textContent = n1.toString();
+    N2show.textContent = n2.toString();
+    drawT(V1,n1,n2,V2,gain,eff);
+  }
+
+  function tRecord(){
+    const m=mode.value;
+    if(m==='t1'){
+      const t=+coilTurns.value;
+      const r=+Rcoil.value;
+      if(!(t>0 && r>=0)) return;
+      const cell=document.getElementById(`t1_${t}`);
+      if(cell) cell.textContent = r.toFixed(2);
+      drawT(null,null,null,null,null,null,`Recorded R(${t})=${r.toFixed(2)} Ω`);
+      return;
+    }
+    const V1=+Vin.value;
+    const {n1,n2,eff}=getTurns();
+    const V2 = parseFloat(Vout.textContent);
+    const gain = parseFloat(G.textContent);
+    if(!isFinite(V2) || !isFinite(gain)) return;
+
+    if(m==='t2'){
+      const map={none:'no', iron:'iron', u:'u', square:'sq'};
+      const key=map[coreType.value] || 'no';
+      document.getElementById(`t2_${key}_v1`).textContent = V1.toFixed(2);
+      document.getElementById(`t2_${key}_v2`).textContent = V2.toFixed(2);
+      document.getElementById(`t2_${key}_g`).textContent  = gain.toFixed(3);
+    }
+    if(m==='t3'){
+      const key=stepUpCase.value.replace('-','');
+      document.getElementById(`t3_${key}_v1`).textContent = V1.toFixed(2);
+      document.getElementById(`t3_${key}_v2`).textContent = V2.toFixed(2);
+      document.getElementById(`t3_${key}_g`).textContent  = gain.toFixed(3);
+    }
+    if(m==='t4'){
+      const key=stepDownCase.value.replace('-','');
+      document.getElementById(`t4_${key}_v1`).textContent = V1.toFixed(2);
+      document.getElementById(`t4_${key}_v2`).textContent = V2.toFixed(2);
+      document.getElementById(`t4_${key}_g`).textContent  = gain.toFixed(3);
+    }
+  }
+
+  function tClearAll(){
+    ['t1_200','t1_400','t1_800',
+     't2_no_v1','t2_no_v2','t2_no_g','t2_iron_v1','t2_iron_v2','t2_iron_g','t2_u_v1','t2_u_v2','t2_u_g','t2_sq_v1','t2_sq_v2','t2_sq_g',
+     't3_200400_v1','t3_200400_v2','t3_200400_g','t3_400800_v1','t3_400800_v2','t3_400800_g',
+     't4_400200_v1','t4_400200_v2','t4_400200_g','t4_800400_v1','t4_800400_v2','t4_800400_g'
+    ].forEach(id=>{const el=document.getElementById(id); if(el) el.textContent='—';});
+    tCalc();
+  }
+
+  function drawT(V1,n1,n2,V2,gain,eff,msg){
+    const c=document.getElementById('tCanvas');
+    const x=c.getContext('2d');
+    x.clearRect(0,0,c.width,c.height);
+    x.fillStyle='#070e1c'; x.fillRect(0,0,c.width,c.height);
+    x.strokeStyle='#1a2540'; x.lineWidth=0.5;
+    for(let i=0;i<c.height;i+=40){x.beginPath();x.moveTo(0,i);x.lineTo(c.width,i);x.stroke();}
+    for(let i=0;i<c.width;i+=40){x.beginPath();x.moveTo(i,0);x.lineTo(i,c.height);x.stroke();}
+
+    x.fillStyle='#cdd8f0'; x.font='bold 16px Syne';
+    x.fillText('Transformer Lab — Tables Version', 24, 38);
+    x.fillStyle='#39ff89'; x.font='12px IBM Plex Mono';
+
+    const mLabel = {
+      t1:'Table 1: Coil resistance',
+      t2:'Table 2: Core effect',
+      t3:'Table 3: Step-up',
+      t4:'Table 4: Step-down'
+    }[mode.value];
+    x.fillText(mLabel, 24, 66);
+
+    if(msg){ x.fillStyle='#00e5ff'; x.fillText(msg, 24, 92); return; }
+
+    if(mode.value==='t1'){
+      x.fillText('Enter measured resistance and record to Table 1.', 24, 92);
+      return;
+    }
+
+    x.fillText(`V1=${(V1??0).toFixed(2)} V   N1=${n1}   N2=${n2}   factor=${(eff??1).toFixed(3)}`, 24, 92);
+    x.fillText(`V2=${(V2??0).toFixed(3)} V   Gain G=${(gain??0).toFixed(4)}`, 24, 116);
+
+    // simple coil illustration
+    const leftX=160, rightX=520, midY=270;
+    x.strokeStyle='#00e5ff'; x.lineWidth=2;
+    // primary coil
+    x.beginPath();
+    for(let i=0;i<8;i++){
+      x.arc(leftX + i*10, midY, 10, Math.PI/2, -Math.PI/2, false);
+    }
+    x.stroke();
+    // secondary coil
+    x.strokeStyle='#ff6b35';
+    x.beginPath();
+    for(let i=0;i<8;i++){
+      x.arc(rightX + i*10, midY, 10, Math.PI/2, -Math.PI/2, false);
+    }
+    x.stroke();
+    // core rectangle (only for modes other than t1)
+    x.strokeStyle='#1e2a42'; x.lineWidth=4;
+    x.strokeRect(220, 190, 260, 180);
+    x.fillStyle='#cdd8f0'; x.font='12px IBM Plex Mono';
+    x.fillText('Primary', leftX-10, midY+70);
+    x.fillText('Secondary', rightX+10, midY+70);
+  }
+
+  // Initialize
+  modeChanged();
+</script>
+</body>
+</html>
