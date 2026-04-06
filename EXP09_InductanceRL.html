@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Experiment 09 — Inductance (RL Circuit) Virtual Lab (Tables Version)</title>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@300;400;500&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet"/>
+  <style>
+    :root{--bg:#07090f;--panel:#0d1120;--border:#1e2a42;--accent:#00e5ff;--accent2:#ff6b35;--green:#39ff89;--text:#cdd8f0;--muted:#6b7fa3;--heading:#ffffff;--card:#111826;}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--text);font-family:'Lora',serif;min-height:100vh;overflow-x:hidden;}
+    body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:0;opacity:.4;}
+    header{position:relative;padding:60px 40px 40px;text-align:center;border-bottom:1px solid var(--border);overflow:hidden;}
+    header::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:200px;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);}
+    .grid-bg{position:absolute;inset:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:40px 40px;opacity:.25;pointer-events:none;}
+    .lab-tag{font-family:'IBM Plex Mono',monospace;font-size:.72rem;letter-spacing:.25em;text-transform:uppercase;color:var(--accent);margin-bottom:14px;}
+    h1{font-family:'Syne',sans-serif;font-size:clamp(2rem,5vw,3.4rem);font-weight:800;color:var(--heading);line-height:1.1;margin-bottom:10px;}
+    h1 span{color:var(--accent);} 
+    .sub{font-family:'IBM Plex Mono',monospace;font-size:.85rem;color:var(--muted);margin-top:10px;}
+    .badge{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;padding:3px 10px;border-radius:20px;border:1px solid var(--accent);color:var(--accent);margin:3px;}
+    .badge.orange{border-color:var(--accent2);color:var(--accent2);} 
+    nav{display:flex;justify-content:center;gap:4px;padding:18px 40px;background:var(--panel);border-bottom:1px solid var(--border);flex-wrap:wrap;position:sticky;top:0;z-index:100;}
+    nav button{font-family:'IBM Plex Mono',monospace;font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;padding:9px 20px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;border-radius:4px;transition:all .25s;}
+    nav button:hover,nav button.active{background:var(--accent);color:#000;border-color:var(--accent);font-weight:500;}
+    section{display:none;padding:50px clamp(20px,5vw,80px);max-width:1200px;margin:0 auto;}
+    section.active{display:block;}
+    h2{font-family:'Syne',sans-serif;font-size:1.7rem;font-weight:700;color:var(--heading);margin-bottom:8px;}
+    h3{font-family:'Syne',sans-serif;font-size:1.15rem;font-weight:600;color:var(--accent);margin-bottom:12px;margin-top:28px;}
+    p{line-height:1.8;margin-bottom:14px;color:var(--text);} 
+    ul{line-height:2.1;padding-left:22px;}
+    .divider{height:1px;background:linear-gradient(90deg,var(--accent),transparent);margin:32px 0;}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:28px;margin-bottom:24px;position:relative;}
+    .card::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--accent);border-radius:8px 0 0 8px;}
+    .eq{background:#0a1020;border:1px solid var(--border);border-radius:6px;padding:18px 24px;margin:16px 0;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:1.05rem;color:var(--accent);letter-spacing:.03em;}
+    .sim-wrapper{display:grid;grid-template-columns:1fr 380px;gap:28px;align-items:start;}
+    @media(max-width:900px){.sim-wrapper{grid-template-columns:1fr;}}
+    canvas{width:100%;border:1px solid var(--border);border-radius:8px;background:#070e1c;display:block;}
+    .sim-panel{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:24px;}
+    .ctrl-label{font-family:'IBM Plex Mono',monospace;font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;display:block;}
+    input[type=number], select{width:100%;padding:10px 12px;border-radius:6px;border:1px solid var(--border);background:#070e1c;color:var(--text);font-family:'IBM Plex Mono',monospace;}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+    .btn{font-family:'Syne',sans-serif;font-size:.9rem;font-weight:600;padding:12px 24px;border:none;border-radius:6px;cursor:pointer;transition:all .2s;margin-top:10px;width:100%;display:block;}
+    .btn-p{background:var(--accent);color:#000;} 
+    .btn-p:hover{background:#fff;} 
+    .btn-s{background:transparent;color:var(--accent2);border:1px solid var(--accent2);} 
+    .btn-s:hover{background:var(--accent2);color:#fff;} 
+    .pill{display:inline-block;padding:6px 10px;border-radius:999px;font-family:'IBM Plex Mono',monospace;font-size:.72rem;border:1px solid var(--border);color:var(--muted);} 
+    .val{font-family:'IBM Plex Mono',monospace;font-size:1.25rem;color:var(--accent);font-weight:500;} 
+    .tbl-wrap{overflow-x:auto;margin:20px 0;}
+    table{width:100%;border-collapse:collapse;font-family:'IBM Plex Mono',monospace;font-size:.80rem;}
+    th{background:#0a1428;color:var(--accent);padding:10px 10px;text-align:center;border:1px solid var(--border);font-weight:500;letter-spacing:.05em;white-space:nowrap;}
+    td{padding:10px 10px;border:1px solid var(--border);text-align:center;color:var(--text);background:var(--card);} 
+    td.editable{background:#0a1020;color:var(--green);} 
+    tr:hover td{background:#111d30;}
+    .note{font-family:'IBM Plex Mono',monospace;font-size:.75rem;color:var(--muted);line-height:1.6;}
+  </style>
+</head>
+<body>
+<header>
+  <div class="grid-bg"></div>
+  <div style="position:relative;z-index:1;">
+    <div class="lab-tag">Abdullah Al-Salem University · Physics Lab II · PHY 107</div>
+    <h1>Experiment <span>09</span><br/>Inductance (RL Circuit)</h1>
+    <p class="sub">Virtual Lab · Edited to match your lab manual tables</p>
+    <div style="margin-top:20px;">
+      <span class="badge">X<sub>L</sub> = 2πfL</span>
+      <span class="badge orange">Z = √(R²+X<sub>L</sub>²)</span>
+      <span class="badge">AC</span>
+    </div>
+  </div>
+</header>
+
+<nav>
+  <button class="active" onclick="showTab('theory',this)">① Theory</button>
+  <button onclick="showTab('simulation',this)">② Simulation</button>
+  <button onclick="showTab('data',this)">③ Data Tables</button>
+  <button onclick="showTab('questions',this)">④ Questions</button>
+</nav>
+
+<section id="theory" class="active">
+  <h2>Background Theory</h2>
+  <p>In an AC series RL circuit, the inductor introduces reactance X<sub>L</sub> = 2πfL. The impedance is Z = √(R² + X<sub>L</sub>²).</p>
+  <div class="eq">X<sub>L</sub> = 2π f L</div>
+  <div class="eq">Z = √(R² + X<sub>L</sub>²) &nbsp; and &nbsp; I = V<sub>s</sub> / Z</div>
+  <div class="divider"></div>
+  <div class="card">
+    <h3>Manual table format supported</h3>
+    <ul>
+      <li><b>Table 1</b>: coil resistance for 200 turns and 400 turns.</li>
+      <li><b>Table 2</b>: for R = 5, 10, 20, 50 Ω, record V<sub>s</sub>, V<sub>R</sub>, V<sub>L</sub>, I, X<sub>L</sub>, and L for <b>200 turns</b> and <b>400 turns</b>.</li>
+    </ul>
+    <p class="note">Cells are editable (green). You can record simulator output or type your measured values.</p>
+  </div>
+</section>
+
+<section id="simulation">
+  <h2>Interactive Simulation</h2>
+  <p>Choose coil turns (200 or 400). Set frequency, supply voltage, and resistor R. The simulator computes X<sub>L</sub>, Z, I, and the voltage drops.</p>
+
+  <div class="sim-wrapper">
+    <canvas id="rlCanvas" width="720" height="460"></canvas>
+
+    <div class="sim-panel">
+      <span class="ctrl-label">Coil turns</span>
+      <select id="turns" onchange="turnsChanged()">
+        <option value="200">200 turns</option>
+        <option value="400">400 turns</option>
+      </select>
+
+      <span class="ctrl-label" style="margin-top:12px;">Frequency f (Hz)</span>
+      <input type="number" id="f" value="1000" step="10" min="1" oninput="rlCalc()"/>
+
+      <span class="ctrl-label" style="margin-top:12px;">Supply V<sub>s</sub> (RMS, V)</span>
+      <input type="number" id="Vs" value="6" step="0.01" min="0" oninput="rlCalc()"/>
+
+      <div class="row" style="margin-top:12px;">
+        <div>
+          <span class="ctrl-label">R (Ω)</span>
+          <input type="number" id="R" value="10" step="1" min="0.1" oninput="rlCalc()"/>
+        </div>
+        <div>
+          <span class="ctrl-label">L (mH) (coil)</span>
+          <input type="number" id="LmH" value="4.50" step="0.01" min="0.01" oninput="rlCalc()"/>
+        </div>
+      </div>
+
+      <button class="btn btn-p" onclick="rlRecord()">✔ Record to Table 2</button>
+      <button class="btn btn-s" onclick="rlClear()">↺ Clear Table 2</button>
+
+      <div class="divider" style="margin:18px 0;"></div>
+      <div><span class="pill">X<sub>L</sub> (Ω)</span> <span class="val" id="XL">—</span></div>
+      <div style="margin-top:10px;"><span class="pill">Z (Ω)</span> <span class="val" id="Z">—</span></div>
+      <div style="margin-top:10px;"><span class="pill">I (A)</span> <span class="val" id="I">—</span></div>
+      <div style="margin-top:10px;"><span class="pill">V<sub>R</sub> (V)</span> <span class="val" id="VR">—</span></div>
+      <div style="margin-top:10px;"><span class="pill">V<sub>L</sub> (V)</span> <span class="val" id="VL">—</span></div>
+      <div style="margin-top:10px;"><span class="pill">L(calc) (mH)</span> <span class="val" id="Lcalc">—</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="data">
+  <h2>Data Tables (match manual)</h2>
+
+  <h3>Table 1</h3>
+  <p class="note">Measured coil resistance.</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th colspan="2">Measured</th>
+        </tr>
+        <tr>
+          <th>200 turns (Ω)</th>
+          <th>400 turns (Ω)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td id="r200" class="editable" contenteditable="true">—</td>
+          <td id="r400" class="editable" contenteditable="true">—</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Table 2</h3>
+  <p class="note">For each R (Ω), record values for 200 turns and 400 turns.</p>
+  <div class="tbl-wrap">
+    <table id="mainTable">
+      <thead>
+        <tr>
+          <th rowspan="2">R (Ω)</th>
+          <th colspan="6">200 turns</th>
+          <th colspan="6">400 turns</th>
+        </tr>
+        <tr>
+          <th>V<sub>s</sub>(V)</th><th>V<sub>R</sub>(V)</th><th>V<sub>L</sub>(V)</th><th>I(A)</th><th>X<sub>L</sub>(Ω)</th><th>L(mH)</th>
+          <th>V<sub>s</sub>(V)</th><th>V<sub>R</sub>(V)</th><th>V<sub>L</sub>(V)</th><th>I(A)</th><th>X<sub>L</sub>(Ω)</th><th>L(mH)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-r="5"><td>5</td>
+          <td id="t200_5_vs" class="editable" contenteditable="true">—</td><td id="t200_5_vr" class="editable" contenteditable="true">—</td><td id="t200_5_vl" class="editable" contenteditable="true">—</td><td id="t200_5_i" class="editable" contenteditable="true">—</td><td id="t200_5_xl" class="editable" contenteditable="true">—</td><td id="t200_5_l" class="editable" contenteditable="true">—</td>
+          <td id="t400_5_vs" class="editable" contenteditable="true">—</td><td id="t400_5_vr" class="editable" contenteditable="true">—</td><td id="t400_5_vl" class="editable" contenteditable="true">—</td><td id="t400_5_i" class="editable" contenteditable="true">—</td><td id="t400_5_xl" class="editable" contenteditable="true">—</td><td id="t400_5_l" class="editable" contenteditable="true">—</td>
+        </tr>
+        <tr data-r="10"><td>10</td>
+          <td id="t200_10_vs" class="editable" contenteditable="true">—</td><td id="t200_10_vr" class="editable" contenteditable="true">—</td><td id="t200_10_vl" class="editable" contenteditable="true">—</td><td id="t200_10_i" class="editable" contenteditable="true">—</td><td id="t200_10_xl" class="editable" contenteditable="true">—</td><td id="t200_10_l" class="editable" contenteditable="true">—</td>
+          <td id="t400_10_vs" class="editable" contenteditable="true">—</td><td id="t400_10_vr" class="editable" contenteditable="true">—</td><td id="t400_10_vl" class="editable" contenteditable="true">—</td><td id="t400_10_i" class="editable" contenteditable="true">—</td><td id="t400_10_xl" class="editable" contenteditable="true">—</td><td id="t400_10_l" class="editable" contenteditable="true">—</td>
+        </tr>
+        <tr data-r="20"><td>20</td>
+          <td id="t200_20_vs" class="editable" contenteditable="true">—</td><td id="t200_20_vr" class="editable" contenteditable="true">—</td><td id="t200_20_vl" class="editable" contenteditable="true">—</td><td id="t200_20_i" class="editable" contenteditable="true">—</td><td id="t200_20_xl" class="editable" contenteditable="true">—</td><td id="t200_20_l" class="editable" contenteditable="true">—</td>
+          <td id="t400_20_vs" class="editable" contenteditable="true">—</td><td id="t400_20_vr" class="editable" contenteditable="true">—</td><td id="t400_20_vl" class="editable" contenteditable="true">—</td><td id="t400_20_i" class="editable" contenteditable="true">—</td><td id="t400_20_xl" class="editable" contenteditable="true">—</td><td id="t400_20_l" class="editable" contenteditable="true">—</td>
+        </tr>
+        <tr data-r="50"><td>50</td>
+          <td id="t200_50_vs" class="editable" contenteditable="true">—</td><td id="t200_50_vr" class="editable" contenteditable="true">—</td><td id="t200_50_vl" class="editable" contenteditable="true">—</td><td id="t200_50_i" class="editable" contenteditable="true">—</td><td id="t200_50_xl" class="editable" contenteditable="true">—</td><td id="t200_50_l" class="editable" contenteditable="true">—</td>
+          <td id="t400_50_vs" class="editable" contenteditable="true">—</td><td id="t400_50_vr" class="editable" contenteditable="true">—</td><td id="t400_50_vl" class="editable" contenteditable="true">—</td><td id="t400_50_i" class="editable" contenteditable="true">—</td><td id="t400_50_xl" class="editable" contenteditable="true">—</td><td id="t400_50_l" class="editable" contenteditable="true">—</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="questions">
+  <h2>Questions</h2>
+  <div class="card">
+    <ul>
+      <li>How does X<sub>L</sub> change with frequency?</li>
+      <li>What happens to current when L increases?</li>
+      <li>Explain why V<sub>s</sub><sup>2</sup> = V<sub>R</sub><sup>2</sup> + V<sub>L</sub><sup>2</sup> for the series RL circuit.</li>
+      <li>Compare the inductance values for 200 turns and 400 turns.</li>
+    </ul>
+  </div>
+</section>
+
+<script>
+  function showTab(id, btn){
+    document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));
+    document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    if(btn) btn.classList.add('active');
+  }
+</script>
+
+<script>
+  const turns = document.getElementById('turns');
+  const f = document.getElementById('f');
+  const Vs = document.getElementById('Vs');
+  const R = document.getElementById('R');
+  const LmH = document.getElementById('LmH');
+
+  const XL = document.getElementById('XL');
+  const Z = document.getElementById('Z');
+  const I = document.getElementById('I');
+  const VR = document.getElementById('VR');
+  const VL = document.getElementById('VL');
+  const Lcalc = document.getElementById('Lcalc');
+
+  function turnsChanged(){
+    // reasonable defaults to help match typical lab values
+    if(+turns.value===200) LmH.value = '4.50';
+    if(+turns.value===400) LmH.value = '9.00';
+    rlCalc();
+  }
+
+  function rlCalc(){
+    const ff = +f.value;
+    const v = +Vs.value;
+    const rr = +R.value;
+    const l = (+LmH.value)*1e-3;
+    if(!(ff>0 && v>=0 && rr>0 && l>0)) return;
+
+    const xl = 2*Math.PI*ff*l;
+    const z = Math.sqrt(rr*rr + xl*xl);
+    const i = (z>0)? v/z : 0;
+    const vr = i*rr;
+    const vl = i*xl;
+    const lcalc = (ff>0)? (xl/(2*Math.PI*ff))*1000 : 0;
+
+    XL.textContent = xl.toFixed(2);
+    Z.textContent  = z.toFixed(2);
+    I.textContent  = i.toFixed(3);
+    VR.textContent = vr.toFixed(2);
+    VL.textContent = vl.toFixed(2);
+    Lcalc.textContent = lcalc.toFixed(3);
+
+    drawRL(ff,v,rr,l,xl,z,i,vr,vl);
+  }
+
+  function rlRecord(){
+    const t = +turns.value;
+    const rr = +R.value;
+    // record only to the fixed rows: 5,10,20,50
+    const allowed=[5,10,20,50];
+    // snap to the closest allowed value if user typed something close
+    let best=allowed[0], bestd=Math.abs(rr-allowed[0]);
+    for(const a of allowed){ const d=Math.abs(rr-a); if(d<bestd){best=a; bestd=d;} }
+    const rKey = best;
+
+    const vs = +Vs.value;
+    const vr = parseFloat(VR.textContent);
+    const vl = parseFloat(VL.textContent);
+    const i  = parseFloat(I.textContent);
+    const xl = parseFloat(XL.textContent);
+    const l  = parseFloat(Lcalc.textContent);
+
+    if(!(isFinite(vr)&&isFinite(vl)&&isFinite(i)&&isFinite(xl)&&isFinite(l))) return;
+
+    const prefix = (t===200)? 't200' : 't400';
+    document.getElementById(`${prefix}_${rKey}_vs`).textContent = vs.toFixed(2);
+    document.getElementById(`${prefix}_${rKey}_vr`).textContent = vr.toFixed(2);
+    document.getElementById(`${prefix}_${rKey}_vl`).textContent = vl.toFixed(2);
+    document.getElementById(`${prefix}_${rKey}_i`).textContent  = i.toFixed(3);
+    document.getElementById(`${prefix}_${rKey}_xl`).textContent = xl.toFixed(2);
+    document.getElementById(`${prefix}_${rKey}_l`).textContent  = l.toFixed(3);
+  }
+
+  function rlClear(){
+    const ids=[];
+    for(const t of ['t200','t400']){
+      for(const r of [5,10,20,50]){
+        ids.push(`${t}_${r}_vs`,`${t}_${r}_vr`,`${t}_${r}_vl`,`${t}_${r}_i`,`${t}_${r}_xl`,`${t}_${r}_l`);
+      }
+    }
+    ids.forEach(id=>{const el=document.getElementById(id); if(el) el.textContent='—';});
+    rlCalc();
+  }
+
+  function drawRL(ff,v,rr,l,xl,z,i,vr,vl){
+    const c=document.getElementById('rlCanvas');
+    const x=c.getContext('2d');
+    x.clearRect(0,0,c.width,c.height);
+    x.fillStyle='#070e1c'; x.fillRect(0,0,c.width,c.height);
+    x.strokeStyle='#1a2540'; x.lineWidth=0.5;
+    for(let yy=0;yy<c.height;yy+=40){x.beginPath();x.moveTo(0,yy);x.lineTo(c.width,yy);x.stroke();}
+    for(let xx=0;xx<c.width;xx+=40){x.beginPath();x.moveTo(xx,0);x.lineTo(xx,c.height);x.stroke();}
+
+    x.fillStyle='#cdd8f0'; x.font='bold 16px Syne';
+    x.fillText('AC Series RL Circuit — Tables Version', 24, 38);
+
+    x.fillStyle='#39ff89'; x.font='12px IBM Plex Mono';
+    x.fillText(`Turns=${turns.value}   f=${ff.toFixed(0)} Hz   Vs=${v.toFixed(2)} V   R=${rr.toFixed(2)} Ω   L=${(l*1000).toFixed(2)} mH`, 24, 70);
+    x.fillText(`XL=${xl.toFixed(2)} Ω   Z=${z.toFixed(2)} Ω   I=${i.toFixed(3)} A   VR=${vr.toFixed(2)} V   VL=${vl.toFixed(2)} V`, 24, 94);
+
+    // simple circuit drawing
+    x.strokeStyle='#00e5ff'; x.lineWidth=2;
+    x.beginPath(); x.moveTo(140,260); x.lineTo(260,260); x.stroke();
+    x.fillStyle='#00e5ff'; x.fillText('R', 215, 245);
+    // resistor zigzag
+    x.beginPath();
+    let zx=260, zy=260;
+    x.moveTo(zx,zy);
+    for(let k=0;k<6;k++){
+      zx += 18;
+      zy += (k%2==0)? -12 : 12;
+      x.lineTo(zx,zy);
+    }
+    x.stroke();
+    x.beginPath(); x.moveTo(zx,260); x.lineTo(420,260); x.stroke();
+
+    // inductor coil
+    x.fillStyle='#ff6b35'; x.fillText('L', 430, 245);
+    x.strokeStyle='#ff6b35';
+    x.beginPath();
+    for(let k=0;k<7;k++) x.arc(460 + k*18, 260, 12, Math.PI, 0, false);
+    x.stroke();
+
+    // source
+    x.strokeStyle='#cdd8f0';
+    x.beginPath(); x.arc(120,260,22,0,Math.PI*2); x.stroke();
+    x.fillStyle='#cdd8f0'; x.fillText('Vs', 108, 265);
+
+    // loop wires
+    x.strokeStyle='#1e2a42'; x.lineWidth=3;
+    x.beginPath();
+    x.moveTo(120,238); x.lineTo(120,170); x.lineTo(600,170); x.lineTo(600,260);
+    x.stroke();
+    x.beginPath();
+    x.moveTo(600,260); x.lineTo(600,350); x.lineTo(120,350); x.lineTo(120,282);
+    x.stroke();
+  }
+
+  // init
+  rlCalc();
+</script>
+</body>
+</html>
